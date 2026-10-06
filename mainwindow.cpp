@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_controller->setTransport(m_serial);
 
     connect(m_serial, &SerialManager::frameReceived, m_controller, &OtaController::onFrameReceived);
+    connect(m_serial, &SerialManager::frameSent, this, &MainWindow::onFrameSent);
+    connect(m_serial, &SerialManager::frameReceived, this, &MainWindow::onFrameReceivedDebug);
     connect(m_serial, &SerialManager::errorOccurred, this, &MainWindow::onSerialError);
     connect(m_serial, &SerialManager::portOpened, this, &MainWindow::onPortOpened);
 
@@ -256,6 +258,10 @@ void MainWindow::buildUi()
     m_nodeTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_nodeTable->setSelectionMode(QAbstractItemView::NoSelection);
     mainLayout->addWidget(m_nodeTable, 2);
+
+    m_chkShowHex = new QCheckBox(tr("Hiện bản tin hex (TX/RX) để debug"));
+    m_chkShowHex->setChecked(true);
+    mainLayout->addWidget(m_chkShowHex);
 
     m_logView = new QPlainTextEdit();
     m_logView->setReadOnly(true);
@@ -500,6 +506,26 @@ void MainWindow::updateSummaryLabel()
     QPalette pal = m_summaryLabel->palette();
     pal.setColor(QPalette::Window, bg);
     m_summaryLabel->setPalette(pal);
+}
+
+void MainWindow::onFrameSent(const QByteArray &frame)
+{
+    if (!m_chkShowHex->isChecked())
+        return;
+    onLogMessage(QStringLiteral("TX (%1 byte): %2")
+                     .arg(frame.size()).arg(QString::fromLatin1(frame.toHex(' ').toUpper())));
+}
+
+void MainWindow::onFrameReceivedDebug(const QByteArray &frame)
+{
+    Ota::StatusReply reply;
+    const bool ok = Ota::parseStatusReply(frame, &reply);
+    if (!m_chkShowHex->isChecked() && ok)
+        return;
+    onLogMessage(QStringLiteral("RX (%1 byte) %2: %3")
+                     .arg(frame.size())
+                     .arg(ok ? tr("[OK]") : tr("[CRC/khung lỗi]"))
+                     .arg(QString::fromLatin1(frame.toHex(' ').toUpper())));
 }
 
 void MainWindow::onLogMessage(const QString &msg)

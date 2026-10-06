@@ -30,6 +30,7 @@ public slots:
 
 signals:
     void frameReceived(const QByteArray &frame);
+    void frameSent(const QByteArray &frame); // phat ngay khi ghi xuong cong, de log debug
     void errorOccurred(const QString &message);
     void portOpened(bool ok);
 

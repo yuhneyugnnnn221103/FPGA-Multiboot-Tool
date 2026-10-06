@@ -75,7 +75,9 @@ void SerialManager::pumpQueue()
         m_txQueue.clear();
         return;
     }
-    m_port->write(m_txQueue.dequeue());
+    const QByteArray frame = m_txQueue.dequeue();
+    m_port->write(frame);
+    emit frameSent(frame);
     m_txTimer.start(m_interFrameDelayMs);
 }
 

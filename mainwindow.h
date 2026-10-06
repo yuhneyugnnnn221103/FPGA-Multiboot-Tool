@@ -40,6 +40,8 @@ private slots:
     void onRemoveRangeRow();
 
     void onConnectClicked();
+    void onFrameSent(const QByteArray &frame);
+    void onFrameReceivedDebug(const QByteArray &frame);
     void onEraseClicked();
     void onLoadClicked();
     void onCancelWaitClicked();
@@ -111,6 +113,7 @@ private:
     QPushButton *m_btnBoot = nullptr;
     QPushButton *m_btnCheckLoad = nullptr;
     QCheckBox *m_chkDummyFirstPacket = nullptr;
+    QCheckBox *m_chkShowHex = nullptr;
 
     // thanh trang thai dung chung (ben duoi tab, luon thay du dang o tab nao)
     QLabel *m_stepLabel = nullptr;
