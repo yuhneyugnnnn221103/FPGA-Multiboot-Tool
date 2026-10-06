@@ -89,8 +89,8 @@ bool parseStatusReply(const QByteArray &raw, StatusReply *out)
 QString addressToString(Address a)
 {
     return QStringLiteral("%1:%2")
-    .arg(a.motherboard, 2, 16, QChar('0'))
-        .arg(a.trb, 2, 16, QChar('0'));
+        .arg(a.motherboard)
+        .arg(a.trb);
 }
 
 } // namespace Ota

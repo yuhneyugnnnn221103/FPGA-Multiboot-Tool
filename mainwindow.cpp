@@ -135,9 +135,9 @@ void MainWindow::buildUi()
     auto *unicastPage = new QWidget();
     auto *unicastLayout = new QHBoxLayout(unicastPage);
     m_unicastMb = new QSpinBox(); m_unicastMb->setRange(0, 255);
-    m_unicastMb->setDisplayIntegerBase(16); m_unicastMb->setValue(0x0A);
+    m_unicastMb->setValue(10);
     m_unicastTrb = new QSpinBox(); m_unicastTrb->setRange(1, 254);
-    m_unicastTrb->setDisplayIntegerBase(16); m_unicastTrb->setValue(1);
+    m_unicastTrb->setValue(1);
     unicastLayout->addWidget(new QLabel(tr("Motherboard:")));
     unicastLayout->addWidget(m_unicastMb);
     unicastLayout->addWidget(new QLabel(tr("TRB:")));
@@ -165,9 +165,9 @@ void MainWindow::buildUi()
     auto *manualGroup = new QGroupBox(tr("Hỏi lỗi thủ công (0x88)"));
     auto *manualLayout = new QHBoxLayout(manualGroup);
     m_manualMb = new QSpinBox(); m_manualMb->setRange(0, 255);
-    m_manualMb->setDisplayIntegerBase(16); m_manualMb->setValue(0x0A);
+    m_manualMb->setValue(10);
     m_manualTrb = new QSpinBox(); m_manualTrb->setRange(1, 254);
-    m_manualTrb->setDisplayIntegerBase(16); m_manualTrb->setValue(1);
+    m_manualTrb->setValue(1);
     m_btnManualQuery = new QPushButton(tr("Hỏi lỗi"));
     manualLayout->addWidget(new QLabel(tr("Motherboard:")));
     manualLayout->addWidget(m_manualMb);
@@ -353,9 +353,9 @@ void MainWindow::onAddRangeRow()
 {
     int row = m_rangeTable->rowCount();
     m_rangeTable->insertRow(row);
-    auto *mbBox = new QSpinBox(); mbBox->setRange(0, 255); mbBox->setDisplayIntegerBase(16); mbBox->setValue(0x0A);
-    auto *fromBox = new QSpinBox(); fromBox->setRange(1, 254); fromBox->setDisplayIntegerBase(16); fromBox->setValue(1);
-    auto *toBox = new QSpinBox(); toBox->setRange(1, 254); toBox->setDisplayIntegerBase(16); toBox->setValue(8);
+    auto *mbBox = new QSpinBox(); mbBox->setRange(0, 255); mbBox->setValue(10);
+    auto *fromBox = new QSpinBox(); fromBox->setRange(1, 254); fromBox->setValue(1);
+    auto *toBox = new QSpinBox(); toBox->setRange(1, 254); toBox->setValue(8);
     m_rangeTable->setCellWidget(row, 0, mbBox);
     m_rangeTable->setCellWidget(row, 1, fromBox);
     m_rangeTable->setCellWidget(row, 2, toBox);

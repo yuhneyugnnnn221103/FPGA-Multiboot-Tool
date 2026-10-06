@@ -69,7 +69,7 @@ QByteArray buildBootRequest(Address addr);
 // Phan tich ban tin FPGA -> PC (CMD 0x99). Tra ve false neu sai header/ender/crc/co size.
 bool parseStatusReply(const QByteArray &raw, StatusReply *out);
 
-// Dinh dang hien thi "mb:trb" (hex 2 chu so moi phan), dung chung cho log va bang UI.
+// Dinh dang hien thi "mb:trb" (so nguyen thap phan 0-255 moi phan), dung chung cho log va bang UI.
 QString addressToString(Address a);
 
 } // namespace Ota
