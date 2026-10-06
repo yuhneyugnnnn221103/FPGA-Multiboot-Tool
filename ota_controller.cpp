@@ -82,9 +82,8 @@ void OtaController::connectNextNode()
 }
 
 // ---------- Buoc 2: xoa flash + nap code (da gop kiem tra loi) ----------
-void OtaController::startEraseAndLoad()
+void OtaController::startErase()
 {
-    setFirmware(m_firmware); // tinh lai so goi theo tuy chon goi ID 0
     m_step = Step::ErasingFlash;
     emit stepChanged(m_step);
     m_transport->sendFrame(Ota::buildEraseFlash(currentTarget()));
@@ -94,8 +93,21 @@ void OtaController::startEraseAndLoad()
     emit stepChanged(m_step);
     m_countdownLeft = m_eraseDelaySec;
     emit countdownTick(m_countdownLeft);
-    m_countdownContinuation = [this] { loadNextPacket(); };
+    m_countdownContinuation = [this] {
+        m_step = Step::Idle;
+        emit stepChanged(m_step);
+        emit logMessage(QStringLiteral("Da het thoi gian cho xoa Flash"));
+    };
     m_countdownTimer.start();
+}
+
+// ---------- Buoc 3: nap code (tach rieng khoi buoc xoa flash) ----------
+void OtaController::startLoad()
+{
+    setFirmware(m_firmware); // tinh lai so goi theo tuy chon goi ID 0
+    m_packetIndex = 0;
+    emit logMessage(QStringLiteral("Bat dau nap code"));
+    loadNextPacket();
 }
 
 void OtaController::cancelWait()
@@ -176,7 +188,7 @@ void OtaController::resendCurrentPacket()
     sendAndArm(Ota::buildStatusQuery(node.addr), PendingAction::LoadQuery);
 }
 
-// ---------- Buoc 3: boot ----------
+// ---------- Buoc 4: boot ----------
 void OtaController::startBoot()
 {
     m_step = Step::RequestingBoot;

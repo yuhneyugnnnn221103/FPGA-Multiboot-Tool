@@ -210,10 +210,12 @@ void MainWindow::buildUi()
 
     auto *stepsGroup = new QGroupBox(tr("3. Các bước"));
     auto *stepsLayout = new QHBoxLayout(stepsGroup);
-    m_btnEraseLoad = new QPushButton(tr("Xóa Flash + Nạp code"));
+    m_btnErase = new QPushButton(tr("Xóa Flash"));
+    m_btnLoad = new QPushButton(tr("Nạp code"));
     m_btnBoot = new QPushButton(tr("Yêu cầu Boot"));
     m_btnCheckLoad = new QPushButton(tr("Kiểm tra nạp"));
-    stepsLayout->addWidget(m_btnEraseLoad);
+    stepsLayout->addWidget(m_btnErase);
+    stepsLayout->addWidget(m_btnLoad);
     stepsLayout->addWidget(m_btnBoot);
     stepsLayout->addWidget(m_btnCheckLoad);
     stepsLayout->addStretch();
@@ -277,7 +279,8 @@ void MainWindow::buildUi()
     connect(m_btnManualQuery, &QPushButton::clicked, this, &MainWindow::onManualQueryClicked);
 
     connect(m_btnChooseFile, &QPushButton::clicked, this, &MainWindow::onChooseFileClicked);
-    connect(m_btnEraseLoad, &QPushButton::clicked, this, &MainWindow::onEraseLoadClicked);
+    connect(m_btnErase, &QPushButton::clicked, this, &MainWindow::onEraseClicked);
+    connect(m_btnLoad, &QPushButton::clicked, this, &MainWindow::onLoadClicked);
     connect(m_btnBoot, &QPushButton::clicked, this, &MainWindow::onBootClicked);
     connect(m_btnCheckLoad, &QPushButton::clicked, this, &MainWindow::onCheckLoadClicked);
 
@@ -420,17 +423,23 @@ void MainWindow::onConnectClicked()
     m_controller->startConnect();
 }
 
-void MainWindow::onEraseLoadClicked()
+void MainWindow::onEraseClicked()
+{
+    m_controller->setMaxRetry(m_maxRetry->value());
+    m_controller->setEraseDelaySeconds(m_eraseDelayMin->value() * 60);
+    m_controller->startErase();
+}
+
+void MainWindow::onLoadClicked()
 {
     if (m_firmwareData.isEmpty()) {
         QMessageBox::warning(this, tr("Thiếu file"), tr("Hãy chọn file .bin trước."));
         return;
     }
     m_controller->setMaxRetry(m_maxRetry->value());
-    m_controller->setEraseDelaySeconds(m_eraseDelayMin->value() * 60);
     m_controller->setSendDummyFirstPacket(m_chkDummyFirstPacket->isChecked());
     m_controller->setFirmware(m_firmwareData);
-    m_controller->startEraseAndLoad();
+    m_controller->startLoad();
 }
 
 void MainWindow::onCancelWaitClicked()
@@ -536,7 +545,8 @@ void MainWindow::updateControlButtons()
     const bool ready = m_portOpen && !busy;
     m_btnConnect->setEnabled(ready);
     m_btnCheckAll->setEnabled(ready);
-    m_btnEraseLoad->setEnabled(ready);
+    m_btnErase->setEnabled(ready);
+    m_btnLoad->setEnabled(ready);
     m_btnBoot->setEnabled(ready);
     m_btnCheckLoad->setEnabled(ready);
     m_btnCancelWait->setEnabled(m_lastStep == OtaController::Step::WaitingErase ||

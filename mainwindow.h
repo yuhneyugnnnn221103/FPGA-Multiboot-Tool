@@ -40,7 +40,8 @@ private slots:
     void onRemoveRangeRow();
 
     void onConnectClicked();
-    void onEraseLoadClicked();
+    void onEraseClicked();
+    void onLoadClicked();
     void onCancelWaitClicked();
     void onBootClicked();
     void onCheckLoadClicked();
@@ -105,7 +106,8 @@ private:
     QSpinBox *m_eraseDelayMin = nullptr;
     QSpinBox *m_rebootDelaySec = nullptr;
     QSpinBox *m_maxRetry = nullptr;
-    QPushButton *m_btnEraseLoad = nullptr;
+    QPushButton *m_btnErase = nullptr;
+    QPushButton *m_btnLoad = nullptr;
     QPushButton *m_btnBoot = nullptr;
     QPushButton *m_btnCheckLoad = nullptr;
     QCheckBox *m_chkDummyFirstPacket = nullptr;

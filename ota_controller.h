@@ -41,7 +41,8 @@ public:
 
 public slots:
     void startConnect();
-    void startEraseAndLoad();
+    void startErase();        // xoa flash + dem nguoc cho, xong thi ve Idle
+    void startLoad();         // nap code tu goi dau tien
     void startBoot();
     void checkAllNodes();     // "Kiem tra nap": hoi lai toan bo node hien tai bang 0x88
     void cancelWait();        // bo qua dem nguoc dang cho (sau xoa flash HOAC sau boot)
