@@ -1,0 +1,22 @@
+# Build directories
+build/
+cmake-build-*/
+
+# Qt Creator
+.qtcreator/
+*.user
+*.user.*
+
+# Compiled object files
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+*.app
+
+# MOC/UIC/RCC generated
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
