@@ -8,8 +8,6 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QPushButton>
-#include <QRadioButton>
-#include <QStackedWidget>
 #include <QTabWidget>
 #include <QProgressBar>
 #include <QTableWidget>
@@ -104,38 +102,9 @@ void MainWindow::buildUi()
     portLayout->addWidget(m_interFrameDelayMs);
     portLayout->addStretch();
 
-    auto *addrGroup = new QGroupBox(tr("Chế độ & địa chỉ node"));
+    auto *addrGroup = new QGroupBox(tr("Địa chỉ node (Unicast)"));
     auto *addrLayout = new QVBoxLayout(addrGroup);
-    auto *modeRow = new QHBoxLayout();
-    m_radioBroadcast = new QRadioButton(tr("Broadcast (nhiều motherboard/TRB)"));
-    m_radioUnicast = new QRadioButton(tr("Unicast (1 địa chỉ)"));
-    m_radioBroadcast->setChecked(true);
-    modeRow->addWidget(m_radioBroadcast);
-    modeRow->addWidget(m_radioUnicast);
-    modeRow->addStretch();
-    addrLayout->addLayout(modeRow);
-
-    m_addrStack = new QStackedWidget();
-
-    auto *rangePage = new QWidget();
-    auto *rangePageLayout = new QVBoxLayout(rangePage);
-    m_rangeTable = new QTableWidget(0, 3);
-    m_rangeTable->setHorizontalHeaderLabels({tr("Motherboard"), tr("TRB từ"), tr("TRB đến")});
-    m_rangeTable->horizontalHeader()->setStretchLastSection(true);
-    m_rangeTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_rangeTable->setMaximumHeight(120);
-    auto *rangeBtnRow = new QHBoxLayout();
-    m_btnAddRange = new QPushButton(tr("+ Thêm dải"));
-    m_btnRemoveRange = new QPushButton(tr("- Xóa dòng"));
-    rangeBtnRow->addWidget(m_btnAddRange);
-    rangeBtnRow->addWidget(m_btnRemoveRange);
-    rangeBtnRow->addStretch();
-    rangePageLayout->addWidget(m_rangeTable);
-    rangePageLayout->addLayout(rangeBtnRow);
-    m_addrStack->addWidget(rangePage);
-
-    auto *unicastPage = new QWidget();
-    auto *unicastLayout = new QHBoxLayout(unicastPage);
+    auto *unicastLayout = new QHBoxLayout();
     m_unicastMb = new QSpinBox(); m_unicastMb->setRange(0, 255);
     m_unicastMb->setValue(10);
     m_unicastTrb = new QSpinBox(); m_unicastTrb->setRange(0, 255);
@@ -145,9 +114,7 @@ void MainWindow::buildUi()
     unicastLayout->addWidget(new QLabel(tr("TRB:")));
     unicastLayout->addWidget(m_unicastTrb);
     unicastLayout->addStretch();
-    m_addrStack->addWidget(unicastPage);
-
-    addrLayout->addWidget(m_addrStack);
+    addrLayout->addLayout(unicastLayout);
 
     mainLayout->addWidget(portGroup);
     mainLayout->addWidget(addrGroup);
@@ -276,9 +243,6 @@ void MainWindow::buildUi()
 
     connect(m_btnRefreshPorts, &QPushButton::clicked, this, &MainWindow::onRefreshPorts);
     connect(m_btnOpenPort, &QPushButton::clicked, this, &MainWindow::onOpenPortClicked);
-    connect(m_radioUnicast, &QRadioButton::toggled, this, &MainWindow::onModeToggled);
-    connect(m_btnAddRange, &QPushButton::clicked, this, &MainWindow::onAddRangeRow);
-    connect(m_btnRemoveRange, &QPushButton::clicked, this, &MainWindow::onRemoveRangeRow);
 
     connect(m_btnConnect, &QPushButton::clicked, this, &MainWindow::onConnectClicked);
     connect(m_btnCheckAll, &QPushButton::clicked, this, &MainWindow::onCheckLoadClicked);
@@ -292,8 +256,6 @@ void MainWindow::buildUi()
 
     connect(m_btnCancelWait, &QPushButton::clicked, this, &MainWindow::onCancelWaitClicked);
     connect(m_btnStop, &QPushButton::clicked, this, &MainWindow::onStopClicked);
-
-    onAddRangeRow(); // 1 dong mac dinh de bang khong trong khi khoi dong
 }
 
 void MainWindow::onRefreshPorts()
@@ -335,11 +297,6 @@ void MainWindow::onSerialError(const QString &msg)
     onLogMessage(tr("[Lỗi RS485] %1").arg(msg));
 }
 
-void MainWindow::onModeToggled(bool unicast)
-{
-    m_addrStack->setCurrentIndex(unicast ? 1 : 0);
-}
-
 void MainWindow::onChooseFileClicked()
 {
     const QString path = QFileDialog::getOpenFileName(this, tr("Chọn file firmware"),
@@ -353,45 +310,6 @@ void MainWindow::onChooseFileClicked()
     }
     m_firmwareData = f.readAll();
     m_fileLabel->setText(tr("%1 (%2 byte)").arg(QFileInfo(path).fileName()).arg(m_firmwareData.size()));
-}
-
-void MainWindow::onAddRangeRow()
-{
-    int row = m_rangeTable->rowCount();
-    m_rangeTable->insertRow(row);
-    auto *mbBox = new QSpinBox(); mbBox->setRange(0, 255); mbBox->setValue(10);
-    auto *fromBox = new QSpinBox(); fromBox->setRange(0, 255); fromBox->setValue(1);
-    auto *toBox = new QSpinBox(); toBox->setRange(0, 255); toBox->setValue(8);
-    m_rangeTable->setCellWidget(row, 0, mbBox);
-    m_rangeTable->setCellWidget(row, 1, fromBox);
-    m_rangeTable->setCellWidget(row, 2, toBox);
-}
-
-void MainWindow::onRemoveRangeRow()
-{
-    int row = m_rangeTable->currentRow();
-    if (row < 0)
-        row = m_rangeTable->rowCount() - 1;
-    if (row >= 0)
-        m_rangeTable->removeRow(row);
-}
-
-QVector<Ota::Address> MainWindow::expandRangeTable() const
-{
-    QVector<Ota::Address> result;
-    for (int row = 0; row < m_rangeTable->rowCount(); ++row) {
-        auto *mbBox = qobject_cast<QSpinBox *>(m_rangeTable->cellWidget(row, 0));
-        auto *fromBox = qobject_cast<QSpinBox *>(m_rangeTable->cellWidget(row, 1));
-        auto *toBox = qobject_cast<QSpinBox *>(m_rangeTable->cellWidget(row, 2));
-        if (!mbBox || !fromBox || !toBox)
-            continue;
-        const int mb = mbBox->value(), from = fromBox->value(), to = toBox->value();
-        if (from > to)
-            continue;
-        for (int trb = from; trb <= to; ++trb)
-            result.append(Ota::Address{uint8_t(mb), uint8_t(trb)});
-    }
-    return result;
 }
 
 void MainWindow::setupNodeTable(const QVector<Ota::Address> &addrs)
@@ -409,17 +327,10 @@ void MainWindow::setupNodeTable(const QVector<Ota::Address> &addrs)
 
 void MainWindow::applyTargetConfig()
 {
-    if (m_radioUnicast->isChecked()) {
-        Ota::Address a{uint8_t(m_unicastMb->value()), uint8_t(m_unicastTrb->value())};
-        m_controller->setTargetMode(OtaController::TargetMode::Unicast, a);
-        m_controller->setNodes({a});
-        setupNodeTable({a});
-    } else {
-        m_controller->setTargetMode(OtaController::TargetMode::Broadcast);
-        const QVector<Ota::Address> addrs = expandRangeTable();
-        m_controller->setNodes(addrs);
-        setupNodeTable(addrs);
-    }
+    Ota::Address a{uint8_t(m_unicastMb->value()), uint8_t(m_unicastTrb->value())};
+    m_controller->setTargetMode(OtaController::TargetMode::Unicast, a);
+    m_controller->setNodes({a});
+    setupNodeTable({a});
 }
 
 void MainWindow::onConnectClicked()

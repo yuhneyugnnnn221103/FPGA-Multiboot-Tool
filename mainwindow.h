@@ -16,8 +16,6 @@ class QLabel;
 class QProgressBar;
 class QTableWidget;
 class QPlainTextEdit;
-class QRadioButton;
-class QStackedWidget;
 class QTabWidget;
 
 class MainWindow : public QMainWindow
@@ -33,11 +31,8 @@ private slots:
     void onPortOpened(bool ok);
     void onSerialError(const QString &msg);
 
-    void onModeToggled(bool unicast);
     void onChooseFileClicked();
 
-    void onAddRangeRow();
-    void onRemoveRangeRow();
 
     void onConnectClicked();
     void onFrameSent(const QByteArray &frame);
@@ -63,7 +58,6 @@ private slots:
 private:
     void buildUi();
     void applyTargetConfig(); // doc mode + dia chi tu UI, day xuong OtaController va dung de dung bang node
-    QVector<Ota::Address> expandRangeTable() const;
     void setupNodeTable(const QVector<Ota::Address> &addrs);
     void updateControlButtons();
     void updateSummaryLabel(); // banner mau tong quan tren bang node
@@ -84,12 +78,6 @@ private:
     QSpinBox *m_interFrameDelayMs = nullptr;
 
     // widget - che do & dia chi (motherboard + TRB), dung chung cho ca 2 tab
-    QRadioButton *m_radioBroadcast = nullptr;
-    QRadioButton *m_radioUnicast = nullptr;
-    QStackedWidget *m_addrStack = nullptr;
-    QTableWidget *m_rangeTable = nullptr; // Broadcast: nhieu dong Motherboard | TRB tu | TRB den
-    QPushButton *m_btnAddRange = nullptr;
-    QPushButton *m_btnRemoveRange = nullptr;
     QSpinBox *m_unicastMb = nullptr;      // Unicast: 1 dia chi duy nhat
     QSpinBox *m_unicastTrb = nullptr;
 
