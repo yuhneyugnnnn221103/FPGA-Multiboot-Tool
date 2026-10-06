@@ -8,6 +8,7 @@
 #include "ota_controller.h"
 #include "serial_manager.h"
 
+class QCheckBox;
 class QComboBox;
 class QSpinBox;
 class QPushButton;
@@ -107,6 +108,7 @@ private:
     QPushButton *m_btnEraseLoad = nullptr;
     QPushButton *m_btnBoot = nullptr;
     QPushButton *m_btnCheckLoad = nullptr;
+    QCheckBox *m_chkDummyFirstPacket = nullptr;
 
     // thanh trang thai dung chung (ben duoi tab, luon thay du dang o tab nao)
     QLabel *m_stepLabel = nullptr;

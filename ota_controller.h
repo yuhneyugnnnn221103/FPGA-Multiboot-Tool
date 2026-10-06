@@ -36,6 +36,7 @@ public:
     void setRebootDelaySeconds(int seconds);
     void setMaxRetry(int retries);
     void setFirmware(const QByteArray &binData);
+    void setSendDummyFirstPacket(bool enable); // ID 0 = 256 byte 0xFF, goi that bat dau tu ID 1
     const QVector<NodeInfo> &nodes() const { return m_nodes; }
 
 public slots:
@@ -88,6 +89,7 @@ private:
     QByteArray m_firmware;
     int m_packetIndex = 0;
     int m_totalPackets = 0;
+    bool m_dummyFirstPacket = false;
     QByteArray m_curChunk;
 
     int m_eraseDelaySec = 420; // mac dinh 7 phut

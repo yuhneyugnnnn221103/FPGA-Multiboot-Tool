@@ -42,8 +42,11 @@ void OtaController::setFirmware(const QByteArray &binData)
 {
     m_firmware = binData;
     m_packetIndex = 0;
-    m_totalPackets = (m_firmware.size() + Ota::kDataChunkSize - 1) / Ota::kDataChunkSize;
+    m_totalPackets = (m_firmware.size() + Ota::kDataChunkSize - 1) / Ota::kDataChunkSize
+                     + (m_dummyFirstPacket ? 1 : 0);
 }
+
+void OtaController::setSendDummyFirstPacket(bool enable) { m_dummyFirstPacket = enable; }
 
 Ota::Address OtaController::currentTarget() const
 {
@@ -81,6 +84,7 @@ void OtaController::connectNextNode()
 // ---------- Buoc 2: xoa flash + nap code (da gop kiem tra loi) ----------
 void OtaController::startEraseAndLoad()
 {
+    setFirmware(m_firmware); // tinh lai so goi theo tuy chon goi ID 0
     m_step = Step::ErasingFlash;
     emit stepChanged(m_step);
     m_transport->sendFrame(Ota::buildEraseFlash(currentTarget()));
@@ -126,8 +130,12 @@ void OtaController::loadNextPacket()
     m_step = Step::LoadingCode;
     emit stepChanged(m_step);
 
-    int offset = m_packetIndex * Ota::kDataChunkSize;
-    m_curChunk = m_firmware.mid(offset, Ota::kDataChunkSize);
+    if (m_dummyFirstPacket && m_packetIndex == 0) {
+        m_curChunk = QByteArray(Ota::kDataChunkSize, char(0xFF));
+    } else {
+        int offset = (m_packetIndex - (m_dummyFirstPacket ? 1 : 0)) * Ota::kDataChunkSize;
+        m_curChunk = m_firmware.mid(offset, Ota::kDataChunkSize);
+    }
     m_transport->sendFrame(Ota::buildLoadCode(currentTarget(), quint16(m_packetIndex), m_curChunk));
     emit progressChanged(int(100.0 * m_packetIndex / qMax(1, m_totalPackets)));
 

@@ -4,6 +4,7 @@
 #include <QHBoxLayout>
 #include <QGroupBox>
 #include <QLabel>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QSpinBox>
 #include <QPushButton>
@@ -202,6 +203,8 @@ void MainWindow::buildUi()
     paramLayout->addWidget(m_rebootDelaySec);
     paramLayout->addWidget(new QLabel(tr("Số lần thử lại:")));
     paramLayout->addWidget(m_maxRetry);
+    m_chkDummyFirstPacket = new QCheckBox(tr("Gửi gói ID 0 (256 byte 0xFF) trước khi nạp"));
+    paramLayout->addWidget(m_chkDummyFirstPacket);
     paramLayout->addStretch();
     loadLayout->addWidget(paramGroup);
 
@@ -425,6 +428,7 @@ void MainWindow::onEraseLoadClicked()
     }
     m_controller->setMaxRetry(m_maxRetry->value());
     m_controller->setEraseDelaySeconds(m_eraseDelayMin->value() * 60);
+    m_controller->setSendDummyFirstPacket(m_chkDummyFirstPacket->isChecked());
     m_controller->setFirmware(m_firmwareData);
     m_controller->startEraseAndLoad();
 }
